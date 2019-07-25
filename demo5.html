@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - equirectangular panorama</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				margin: 0;
+				background-color: #000;
+				color: #fff;
+				font-family: Monospace;
+				font-size: 13px;
+				line-height: 24px;
+			}
+
+			a {
+				color: #ff0;
+				text-decoration: none;
+			}
+
+			a:hover {
+				text-decoration: underline;
+			}
+
+			button {
+				cursor: pointer;
+				text-transform: uppercase;
+			}
+
+			canvas {
+				display: block;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				padding: 10px;
+				box-sizing: border-box;
+				text-align: center;
+				z-index: 1; /* TODO Solve this in HTML */
+			}
+
+			.dg.ac {
+				z-index: 2 !important; /* TODO Solve this in HTML */
+			}
+
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js webgl</a> - equirectangular panorama demo. photo by <a href="http://www.flickr.com/photos/jonragnarsson/2294472375/" target="_blank" rel="noopener">Jón Ragnarsson</a>.<br />
+			drag equirectangular texture into the page.
+		</div>
+
+		<script type="module">
+			import * as THREE from '/js/three.module.js';
+			var camera, scene, renderer;
+			
+		</script>
+	</body>
+</html>
