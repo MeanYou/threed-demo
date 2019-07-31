@@ -57,8 +57,160 @@
 
 		<script type="module">
 			import * as THREE from '/js/three.module.js';
-			var camera, scene, renderer;
+			import { OrbitControls } from '/jsm/OrbitControls.js';
+			// 定义相机
+			var camera;
+			function initCamera() {
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2049);
+				//camera.position.x = 0;
+                //camera.position.y = 0;
+                //camera.position.z = 5;
+                //camera.up.x = 0;
+                //camera.up.y = 1;
+                //camera.up.z = 0;
+				camera.target = new THREE.Vector3(0, 0, 0);
+				camera.lookAt( camera.target );
+			}
 			
+			
+			// 定义场景并向场景中添加要素
+			var scene, geometry, texture, lineMaterial, meshMaterial, group;
+			function initScene() {
+				scene = new THREE.Scene();
+				geometry = new THREE.BoxBufferGeometry( 2048, 2048, 2048 );// 球缓冲几何体，半径500，经度60段，纬度40段
+				geometry.scale(-1, 1, 1);// 几何沿X轴翻转，将几何体里外翻面
+				texture = new THREE.TextureLoader().load( '/images/negx.jpg' );// 加载图片，作为纹理填充
+				group = new THREE.Group();
+				lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+				//meshMaterial = new THREE.MeshPhongMaterial({ color: 0x156289 });
+				meshMaterial = new THREE.MeshBasicMaterial({ map: texture });
+				group.add(new THREE.LineSegments(geometry, lineMaterial));
+				group.add(new THREE.Mesh(geometry, meshMaterial));
+				scene.add(group);
+				
+				scene.background = new THREE.Color( 0x444444 );
+			}
+			
+			// 定义渲染器
+			var renderer;
+			function initRenderer() {
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				var container = document.getElementById('container');// 获取绘制的dom容器
+				container.appendChild(renderer.domElement);
+			}
+			
+			// 定义控制器
+			var orbit;
+			function initOrbit() {
+				orbit = new OrbitControls( camera, renderer.domElement );
+				orbit.enableZoom = false;
+			}
+			var isUserInteracting = false,
+				onMouseDownMouseX = 0, onMouseDownMouseY = 0,
+				lon = 0, onMouseDownLon = 0,
+				lat = 0, onMouseDownLat = 0,
+				phi = 0, theta = 0;
+			function initController() {
+				document.addEventListener( 'mousedown', onPointerStart, false );
+				document.addEventListener( 'mousemove', onPointerMove, false );
+				document.addEventListener( 'mouseup', onPointerUp, false );
+				document.addEventListener( 'wheel', onDocumentMouseWheel, false );
+				document.addEventListener( 'touchstart', onPointerStart, false );
+				document.addEventListener( 'touchmove', onPointerMove, false );
+				document.addEventListener( 'touchend', onPointerUp, false );
+			}
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+			function onPointerStart( event ) {
+				isUserInteracting = true;
+				var clientX = event.clientX || event.touches[ 0 ].clientX;
+				var clientY = event.clientY || event.touches[ 0 ].clientY;
+				onMouseDownMouseX = clientX;
+				onMouseDownMouseY = clientY;
+				onMouseDownLon = lon;
+				onMouseDownLat = lat;
+			}
+			function onPointerMove( event ) {
+				if ( isUserInteracting === true ) {
+					var clientX = event.clientX || event.touches[ 0 ].clientX;
+					var clientY = event.clientY || event.touches[ 0 ].clientY;
+					lon = ( onMouseDownMouseX - clientX ) * 0.1 + onMouseDownLon;
+					lat = ( clientY - onMouseDownMouseY ) * 0.1 + onMouseDownLat;
+				}
+			}
+			function onPointerUp() {
+				isUserInteracting = false;
+			}
+			function onDocumentMouseWheel( event ) {
+				var fov = camera.fov + event.deltaY * 0.05;
+				camera.fov = THREE.Math.clamp( fov, 10, 75 );
+				camera.updateProjectionMatrix();
+			}
+			
+			
+			// 定义光源
+			function initLights() {
+				var lights = [];
+				lights[ 0 ] = new THREE.PointLight( 0xffff00, 1, 0 );
+				lights[ 1 ] = new THREE.PointLight( 0xffff00, 1, 0 );
+				lights[ 2 ] = new THREE.PointLight( 0xffff00, 1, 0 );
+
+				lights[ 0 ].position.set( 1500, 0, 0 );
+				lights[ 1 ].position.set( -1000, -500, 0 );
+				lights[ 2 ].position.set( 0, 1000, -750 );
+
+				scene.add( lights[ 0 ] );
+				scene.add( lights[ 1 ] );
+				scene.add( lights[ 2 ] );
+			}
+			
+			
+			function animate() {
+				requestAnimationFrame( animate );
+				
+				//group.rotation.x-=0.01;
+				//group.rotation.y-=0.01;
+				lat = Math.max( - 85, Math.min( 85, lat ) );
+				phi = THREE.Math.degToRad( 90 - lat );
+				theta = THREE.Math.degToRad( lon );
+				camera.target.x = 500 * Math.sin( phi ) * Math.cos( theta );
+				camera.target.y = 500 * Math.cos( phi );
+				camera.target.z = 500 * Math.sin( phi ) * Math.sin( theta );
+				camera.lookAt( camera.target );
+				renderer.render( scene, camera );
+			}
+			
+			initCamera();
+			initScene();
+			initRenderer();
+			//initOrbit();
+			initController();
+			initLights();
+			animate();
 		</script>
 	</body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
